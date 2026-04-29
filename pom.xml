@@ -20,7 +20,7 @@
     <name>MVCproj2</name>
 
     <!-- IMPORTANT for JSP -->
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <properties>
         <java.version>17</java.version>
