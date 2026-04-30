@@ -1,4 +1,4 @@
-name: Java CI + Run WAR
+name: Java CI with Tomcat Deploy
 
 on:
   push:
@@ -6,35 +6,42 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest   # ✅ change from windows
+    runs-on: ubuntu-latest
 
     steps:
+    # 1. Checkout code
     - name: Checkout Code
       uses: actions/checkout@v4
 
+    # 2. Setup Java
     - name: Setup Java
       uses: actions/setup-java@v4
       with:
-        distribution: 'temurin'
-        java-version: '17'
+        distribution: temurin
+        java-version: 17
 
+    # 3. Build WAR
     - name: Build WAR
       run: mvn clean package -DskipTests
 
+    # 4. Download Tomcat (FIXED URL)
     - name: Download Tomcat
       run: |
-        wget https://downloads.apache.org/tomcat/tomcat-10/v10.1.20/bin/apache-tomcat-10.1.20.tar.gz
-        tar -xzf apache-tomcat-10.1.20.tar.gz
+        wget https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.24/bin/apache-tomcat-10.1.24.tar.gz
+        tar -xzf apache-tomcat-10.1.24.tar.gz
 
-    - name: Deploy WAR to Tomcat
+    # 5. Deploy WAR to Tomcat
+    - name: Deploy WAR
       run: |
-        cp target/*.war apache-tomcat-10.1.20/webapps/ROOT.war
+        cp target/*.war apache-tomcat-10.1.24/webapps/ROOT.war
 
+    # 6. Start Tomcat
     - name: Start Tomcat
       run: |
-        chmod +x apache-tomcat-10.1.20/bin/*.sh
-        apache-tomcat-10.1.20/bin/startup.sh
+        chmod +x apache-tomcat-10.1.24/bin/*.sh
+        apache-tomcat-10.1.24/bin/startup.sh
 
+    # 7. Wait and Test
     - name: Wait and Test
       run: |
         sleep 20
