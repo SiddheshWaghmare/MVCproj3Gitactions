@@ -1,4 +1,4 @@
-name: Build and Run App
+name: Java CI with Maven
 
 on:
   push:
@@ -6,10 +6,10 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
-    - name: Checkout
+    - name: Checkout Code
       uses: actions/checkout@v4
 
     - name: Setup Java
@@ -18,15 +18,14 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Build
+    - name: Build WAR
       run: mvn clean package -DskipTests
 
     - name: Run Tests
       run: mvn test
 
-    - name: Run App
-      run: |
-        nohup java -jar target/*.jar > app.log 2>&1 &
-
-    - name: Wait to verify app
-      run: sleep 20
+    - name: Upload WAR
+      uses: actions/upload-artifact@v4
+      with:
+        name: war-file
+        path: target/*.war
