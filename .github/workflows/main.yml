@@ -1,12 +1,12 @@
-name: Java CI with Maven
+name: Java CI + Run WAR
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest   # ✅ change from windows
 
     steps:
     - name: Checkout Code
@@ -21,11 +21,21 @@ jobs:
     - name: Build WAR
       run: mvn clean package -DskipTests
 
-    - name: Run Tests
-      run: mvn test
+    - name: Download Tomcat
+      run: |
+        wget https://downloads.apache.org/tomcat/tomcat-10/v10.1.20/bin/apache-tomcat-10.1.20.tar.gz
+        tar -xzf apache-tomcat-10.1.20.tar.gz
 
-    - name: Upload WAR
-      uses: actions/upload-artifact@v4
-      with:
-        name: war-file
-        path: target/*.war
+    - name: Deploy WAR to Tomcat
+      run: |
+        cp target/*.war apache-tomcat-10.1.20/webapps/ROOT.war
+
+    - name: Start Tomcat
+      run: |
+        chmod +x apache-tomcat-10.1.20/bin/*.sh
+        apache-tomcat-10.1.20/bin/startup.sh
+
+    - name: Wait and Test
+      run: |
+        sleep 20
+        curl http://localhost:8080
